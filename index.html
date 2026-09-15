@@ -1,0 +1,738 @@
+<title>SCM Fixed Income & Credit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --brand:#1a5c3a; --brand-deep:#123f28; --pos:#1e7a46; --neg:#b0332b;
+    --amber:#a86a10; --page:#eef3ee; --card:#ffffff; --card-head:#f2f6f2;
+    --ink:#1b211d; --muted:#6b7670; --faint:#98a29b; --line:#e3e8e3; --line-strong:#cdd6ce;
+    --tint:#eaf1ea; --pos-bg:#e7f1ea; --neg-bg:#f6e9e8; --amber-bg:#f6efe0;
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --maxw:1360px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .num{font-variant-numeric:tabular-nums}
+  .mono{font-family:var(--mono)}
+  .pos{color:var(--pos)}
+  .neg{color:var(--neg)}
+  .mut{color:var(--muted)}
+  a{color:var(--brand);text-decoration:none}
+
+  /* ---------- header ---------- */
+  header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+  .top-inner{max-width:var(--maxw);margin:0 auto;padding:14px 24px 0;display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo-img{display:block;height:46px;width:auto;flex-shrink:0}
+  .wordmark{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--brand);line-height:1.15}
+  .wordmark b{display:block;font-weight:600}
+  .titleblock{flex:1;min-width:220px}
+  .titleblock h1{margin:0;font-size:20px;font-weight:600;color:var(--brand);letter-spacing:-.01em}
+  .titleblock .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .buildbox{text-align:right;display:flex;align-items:flex-start;gap:14px}
+  .buildmeta{font-size:11.5px;color:var(--muted);line-height:1.5}
+  .buildmeta b{color:var(--ink);font-weight:500}
+  .warnchip{color:var(--amber)}
+  .refresh{border:1px solid var(--brand);background:var(--brand);color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:500;padding:8px 16px;border-radius:6px;cursor:pointer}
+  .refresh:hover{background:var(--brand-deep)}
+  /* tabs */
+  nav.tabs{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto}
+  nav.tabs button{position:relative;border:0;background:none;font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.02em;color:var(--muted);padding:14px 14px 12px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button.active{color:var(--brand);border-bottom-color:var(--brand)}
+  nav.tabs .badge{display:inline-block;margin-left:6px;background:var(--neg);color:#fff;font-size:10px;font-weight:600;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:8px;padding:0 4px;vertical-align:1px}
+
+  /* ---------- layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:22px 24px 60px}
+  section[hidden]{display:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:20px;overflow:hidden}
+  .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card-head);border-bottom:1px solid var(--line);padding:11px 18px}
+  .card-h h2{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .card-h .meta{font-size:11.5px;color:var(--faint);text-align:right}
+  .card-b{padding:18px}
+  .card-b.tight{padding:0}
+  .lede{font-size:13px;color:var(--muted);margin:0 0 14px}
+  .lede b{color:var(--ink);font-weight:600}
+
+  /* stat grid */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line)}
+  .stat{background:var(--card);padding:16px 18px}
+  .stat .k{font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+  .stat .v{font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:5px}
+  .stat .s{font-size:12px;color:var(--muted);margin-top:3px}
+
+  /* readout list */
+  .readout{display:flex;flex-direction:column}
+  .readout .row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dotted var(--line-strong);font-size:13px}
+  .readout .row:last-child{border-bottom:0}
+  .readout .row .lab{color:var(--muted)}
+  .readout .row .val{font-weight:500;font-variant-numeric:tabular-nums}
+
+  /* two-col */
+  .split{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start}
+  .split-even{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  @media(max-width:860px){.split,.split-even{grid-template-columns:1fr}}
+
+  /* exposure bars */
+  .bars{display:flex;flex-direction:column;gap:12px}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 52px;align-items:center;gap:12px;font-size:13px}
+  .bar-track{height:16px;background:var(--tint);border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;background:var(--brand);border-radius:3px}
+  .bar-fill.g2{background:#3f8b63}.bar-fill.g3{background:#79b393}.bar-fill.g4{background:#b9d4c4}
+  .bar-row .amt{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+
+  /* tables */
+  .tbl-wrap{overflow-x:auto}
+  table.grid{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.grid th{position:sticky;top:0;text-align:right;font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:10px 12px;border-bottom:1px solid var(--line);background:var(--card);cursor:pointer;white-space:nowrap}
+  table.grid th:first-child,table.grid td:first-child{text-align:left}
+  table.grid th.l{text-align:left}
+  table.grid td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+  table.grid tr:hover td{background:#f8faf8}
+  table.grid td.l{text-align:left}
+  .tick{font-weight:600;color:var(--ink);display:block}
+  .pname{display:block;font-weight:400;color:var(--faint);font-size:11px;letter-spacing:0;margin-top:1px}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:20px;font-size:12px;color:var(--muted);margin-bottom:12px;padding-left:2px}
+  .chart-legend span{display:inline-flex;align-items:center}
+  .chart-legend i{display:inline-block;width:20px;height:0;margin-right:7px}
+  .ln-solid{border-top:2.4px solid var(--brand)}
+  .ln-dash{border-top:2px dashed #b0b8b2}
+  .pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.05em;padding:2px 8px;border-radius:4px;background:var(--tint);color:var(--brand)}
+  .pill.short{background:#eceff1;color:#455055}
+  .pill.ust{background:#e7eef9;color:#284a80}
+  .pill.etf{background:#efeaf6;color:#4a3a72}
+  .pill.corp{background:var(--tint);color:var(--brand)}
+  .rat{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .spark{display:block}
+
+  /* factor split bar */
+  .fsplit{display:flex;height:30px;border-radius:5px;overflow:hidden;font-size:12px;font-weight:600}
+  .fsplit div{display:flex;align-items:center;justify-content:center;color:#fff}
+  .fsplit .a{background:var(--brand)}.fsplit .b{background:#8fbaa1;color:#173d28}
+
+  /* scenario ladder */
+  .ladder{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border-radius:8px;overflow:hidden}
+  .ladder .h,.ladder .c{background:var(--card);padding:9px 12px;font-size:12.5px;text-align:right}
+  .ladder .h{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .ladder .c.lft,.ladder .h.lft{text-align:left}
+
+  /* events */
+  .evt{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .evt:last-child{border-bottom:0}
+  .evt .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .evt .n{font-weight:500}
+  .evt .n small{color:var(--faint);font-weight:400}
+  .imp{font-size:10px;font-weight:600;letter-spacing:.06em;padding:3px 9px;border-radius:4px}
+  .imp.HIGH{background:var(--neg-bg);color:var(--neg)}
+  .imp.MED{background:var(--amber-bg);color:var(--amber)}
+  .imp.LOW{background:var(--tint);color:var(--muted)}
+
+  /* limits */
+  .limit{padding:14px 0;border-bottom:1px solid var(--line)}
+  .limit:last-child{border-bottom:0}
+  .limit .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+  .limit .name{font-weight:500}
+  .limit .status{font-size:11px;font-weight:600;letter-spacing:.05em;padding:2px 9px;border-radius:4px}
+  .status.OK{background:var(--pos-bg);color:var(--pos)}
+  .status.WATCH{background:var(--amber-bg);color:var(--amber)}
+  .status.BREACH{background:var(--neg-bg);color:var(--neg)}
+  .limit .util{height:8px;background:var(--tint);border-radius:4px;overflow:hidden}
+  .limit .util i{display:block;height:100%;background:var(--brand)}
+  .limit .util i.w{background:var(--amber)}.limit .util i.b{background:var(--neg)}
+  .limit .sub{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* memos */
+  .memo{padding:16px 0;border-bottom:1px solid var(--line)}
+  .memo:last-child{border-bottom:0}
+  .memo h3{margin:0 0 4px;font-size:15px;font-weight:600}
+  .memo .by{font-size:12px;color:var(--faint);margin-bottom:8px}
+  .memo p{margin:0 0 8px;font-size:13px;color:#3a423d}
+  .memo .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11px;padding:2px 9px;border-radius:4px;background:var(--tint);color:var(--brand);font-weight:500}
+  .tag.buy{background:var(--pos-bg);color:var(--pos)}
+  .tag.sell{background:var(--neg-bg);color:var(--neg)}
+  .tag.hold{background:var(--amber-bg);color:var(--amber)}
+
+  /* people */
+  .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .person{display:flex;gap:12px;align-items:center}
+  .ava{width:38px;height:38px;border-radius:50%;background:var(--tint);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
+  .person .nm{font-weight:500}
+  .person .rl{font-size:12px;color:var(--muted)}
+
+  /* interpret callouts */
+  .callout{display:flex;gap:12px;padding:13px 15px;border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:0 8px 8px 0;background:#f7faf8;font-size:13px;margin-bottom:12px;line-height:1.5}
+  .callout:last-child{margin-bottom:0}
+  .callout.warn{border-left-color:var(--amber);background:#fbf7ee}
+  .callout.bad{border-left-color:var(--neg);background:#fbf1f0}
+  .callout b{font-weight:600}
+  .callout .ic{color:var(--brand);font-weight:700;flex-shrink:0}
+  .callout.warn .ic{color:var(--amber)}.callout.bad .ic{color:var(--neg)}
+
+  .chart-cap{font-size:11.5px;color:var(--faint);margin-top:8px;text-align:center}
+  .curve-tbl{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:16px}
+  .curve-tbl div{background:var(--card);padding:10px 6px;text-align:center}
+  .curve-tbl .t{font-size:10.5px;font-weight:600;color:var(--faint);letter-spacing:.05em}
+  .curve-tbl .y{font-size:15px;font-weight:600;margin-top:3px}
+  .curve-tbl .c{font-size:11px;margin-top:2px}
+  h3.mini{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+  .foot{max-width:var(--maxw);margin:0 auto;padding:0 24px 40px;font-size:11.5px;color:var(--faint)}
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <img class="logo-img" src="scmlogo.png" alt="Stern Capital Management">
+    </div>
+    <div class="titleblock">
+      <h1>Fixed Income &amp; Credit</h1>
+      <div class="sub">as of 2026-09-04 close &middot; SCM FI &amp; Credit Book.xlsx &middot; Rates &amp; Macro / Credit pods</div>
+    </div>
+    <div class="buildbox">
+      <div class="buildmeta">
+        built 2026-09-15 08:41<br>
+        <span class="warnchip">3 warning(s) &middot; 1 to watch</span>
+      </div>
+      <button class="refresh" id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="book">Book</button>
+    <button data-tab="risk">Risk</button>
+    <button data-tab="limits">Limits <span class="badge">3</span></button>
+    <button data-tab="macro">Macro</button>
+    <button data-tab="credit">Credit</button>
+    <button data-tab="calendar">Calendar</button>
+    <button data-tab="research">Research</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-overview"></section>
+  <section id="tab-book" hidden></section>
+  <section id="tab-risk" hidden></section>
+  <section id="tab-limits" hidden></section>
+  <section id="tab-macro" hidden></section>
+  <section id="tab-credit" hidden></section>
+  <section id="tab-calendar" hidden></section>
+  <section id="tab-research" hidden></section>
+</main>
+<div class="foot">
+  SCM Fixed Income &amp; Credit &middot; MVP v0.1 &middot; sample book, prices as of 2026-09-04. Manually maintained corporate positions; Treasury &amp; ETF marks to be automated in v0.2.
+  Not investment advice — internal club dashboard for Stern Capital Management.
+</div>
+
+<script>
+/* ============================================================
+   SCM FIXED INCOME & CREDIT — data
+   Edit positions / events / memos here. Aggregates compute below.
+   ============================================================ */
+const NAV = 100842, CASH = 15842, DAY_PNL = 842, YTD = 3.11, START_NAV = 97800;
+
+/* asset: UST | ETF | CORP ; side: LONG | SHORT (hedge)               */
+/* dur = modified duration (yrs); sdur = spread duration; oas in bp    */
+const positions = [
+ // ticker, name, asset, sector, rating, analyst, side, units, unitLbl, price, entryPx, ytm, entryYtm, dur, sdur, oas, mv, pnlDay, unrl, seed
+ ["UST 2Y","T 4.25% 08/31/28","UST","Treasury","AAA","R. Okafor","LONG",11000,"par",100.15,99.5,3.72,4.10,1.9,0,0,11000,40,210,11],
+ ["UST 5Y","T 4.00% 08/15/31","UST","Treasury","AAA","R. Okafor","LONG",10100,"par",99.05,97.9,3.81,4.20,4.5,0,0,10000,85,540,23],
+ ["UST 10Y","T 4.125% 08/15/36","UST","Treasury","AAA","R. Okafor","LONG",9050,"par",99.40,96.8,4.05,4.35,8.1,0,0,9000,150,620,37],
+ ["UST 30Y","T 4.50% 08/15/56","UST","Treasury","AAA","R. Okafor","LONG",5100,"par",102.0,98.1,4.34,4.60,17.5,0,0,5000,120,410,41],
+ ["IEF","iShares 7-10Y Treasury","ETF","Rates ETF","AAA","R. Okafor","LONG",48,"sh",103.90,102.1,3.98,4.05,7.4,0,0,4987,70,90,7],
+ ["LQD","iShares IG Corp","ETF","IG ETF","A-","M. Devi","LONG",72,"sh",110.80,108.5,5.15,5.30,8.3,8.3,92,7978,95,170,13],
+ ["JPM","JPMorgan 5.25% '34","CORP","Financials","A-","M. Devi","LONG",6000,"par",100.60,99.2,5.30,5.48,6.8,6.6,88,6036,60,84,29],
+ ["META","Meta Platforms 4.65% '44","CORP","Technology","AA-","M. Devi","LONG",5500,"par",99.80,96.5,5.45,5.70,12.5,11.9,105,5489,175,410,31],
+ ["OXY","Occidental 6.125% '31","CORP","Energy","BBB","J. Serrano","LONG",5500,"par",100.20,101.0,5.95,5.80,4.4,4.2,150,5511,-35,-44,17],
+ ["UNH","UnitedHealth 5.05% '35","CORP","Healthcare","A","M. Devi","LONG",5000,"par",100.10,98.8,5.10,5.28,7.2,7.0,78,5005,55,65,19],
+ ["HYG","iShares HY Corp","ETF","HY ETF","BB","J. Serrano","LONG",63,"sh",79.60,78.9,7.10,7.28,3.1,3.1,320,5015,30,44,5],
+ ["F","Ford Motor Credit 6.50% '30","CORP","Autos","BB+","J. Serrano","LONG",4000,"par",101.30,100.5,6.55,6.72,3.4,3.3,265,4052,45,32,3],
+ ["CCL","Carnival 5.75% '30","CORP","Leisure","BB-","J. Serrano","LONG",3000,"par",98.20,99.0,7.20,6.98,3.1,3.0,330,2946,-20,-24,2],
+ ["TDG","TransDigm 6.375% '29","CORP","Aerospace","B+","J. Serrano","LONG",3000,"par",101.00,100.2,7.05,7.18,2.7,2.6,315,3030,20,24,41],
+ ["UST 10Y hedge","Short 10Y note futures","UST","Rate hedge","AAA","R. Okafor","SHORT",-8000,"notl",99.40,99.0,4.05,4.02,8.1,0,0,0,-75,-180,9],
+];
+const cashCarry = 27;
+
+const curve = {
+  tenors:["3M","1Y","2Y","5Y","7Y","10Y","20Y","30Y"],
+  now:   [4.02, 3.70, 3.72, 3.81, 3.95, 4.05, 4.28, 4.34],
+  prior: [4.28, 3.98, 3.95, 3.98, 4.06, 4.12, 4.30, 4.33], // 1 month ago
+};
+const macroHist = [
+  ["Core CPI (y/y)","2.9%","prev 3.0%","cooling"],
+  ["Core PCE (y/y)","2.7%","prev 2.8%","cooling"],
+  ["NFP","+142k","prev +118k","firm"],
+  ["Unemployment","4.3%","prev 4.2%","softening"],
+  ["Fed funds (upper)","4.25%","-25bp Jul","easing"],
+  ["Mkt: Sep cut odds","82%","-25bp priced","dovish"],
+  ["10Y real (TIPS)","1.71%","",""],
+  ["10Y breakeven","2.34%","",""],
+  ["SOFR","4.31%","",""],
+];
+const events = [
+  ["2026-09-17","FOMC rate decision","rate decision + SEP dots","HIGH"],
+  ["2026-09-18","Initial jobless claims","weekly","LOW"],
+  ["2026-09-23","2Y note auction","$69bn","MED"],
+  ["2026-09-24","5Y note auction","$70bn","MED"],
+  ["2026-09-25","Core PCE (Aug)","Fed's preferred gauge","HIGH"],
+  ["2026-09-25","GDP (Q2 final)","","MED"],
+  ["2026-10-02","Nonfarm payrolls (Sep)","","HIGH"],
+  ["2026-10-14","CPI (Sep)","","HIGH"],
+  ["2026-08-31","UST 2Y matures","$11,000 par rolls off","MED"],
+];
+const memos = [
+  ["Duration: staying a touch short into the September FOMC","R. Okafor · Rates & Macro · 2026-09-12",
+   "Book duration held at 4.8y vs the 6.0y ceiling. With an 82% priced Sep cut and cooling core PCE, we keep the 8k 10y futures hedge on: the risk is a hawkish dot plot, not the cut itself. We add duration on any back-up above 4.20% on the 10Y.",
+   [["Duration 4.8y","hold"],["10Y target 3.85%","buy"]]],
+  ["META '44: rich to the curve, holding for carry","M. Devi · Credit · 2026-09-10",
+   "OAS ground into +105bp, ~15bp through the AA index. Not adding here, but the 5.45% yield and 11.9y spread duration is our single largest spread contributor — sized at cap. Post-earnings we revisit; near-term catalyst is capex guidance.",
+   [["OAS +105bp","hold"],["Target +95bp","hold"]]],
+  ["Ford Credit: BB+ carry, watching auto ABS delinquencies","J. Serrano · Credit · 2026-09-08",
+   "6.55% yield at +265bp is fair for a crossover name. Subprime auto ABS 60+ day delinquencies ticked up; we cap the position at 4% NAV and prefer the '30 over the long end. Downgrade to BB would trip our HY sizing rule.",
+   [["+265bp","hold"],["Cap 4% NAV","hold"]]],
+  ["PCE preview: core to print +0.2% m/m","A. Nakamura · Macro · 2026-09-11",
+   "We look for core PCE +0.2% m/m (2.7% y/y), in line. A 0.3% surprise would push the curve bear-flatter and pressure our long-end Treasuries; a 0.1% print steepens and helps the 5Y. We flag it HIGH on the calendar.",
+   [["Core PCE +0.2%","hold"],["2s10s bias steeper","buy"]]],
+];
+const people = [
+  ["R. Okafor","Rates & Macro PM · UST, curve, hedges","RO"],
+  ["M. Devi","IG Credit analyst · Fins, Tech, Health","MD"],
+  ["J. Serrano","HY Credit analyst · Energy, Autos, Leisure","JS"],
+  ["A. Nakamura","Macro analyst · CPI/PCE/NFP, Fed","AN"],
+];
+
+/* ---------- derived aggregates ---------- */
+const longs = positions.filter(p=>p[6]==="LONG");
+const F = {
+  ix:{tick:0,name:1,asset:2,sector:3,rating:4,analyst:5,side:6,units:7,ulbl:8,price:9,epx:10,ytm:11,eytm:12,dur:13,sdur:14,oas:15,mv:16,pnl:17,unrl:18,seed:19}
+};
+const g = i=>F.ix[i];
+const invested = positions.reduce((a,p)=>a+Math.max(p[g('mv')],0),0);
+function wavg(field, filt=()=>true, base='mv'){
+  let n=0,d=0; positions.filter(filt).forEach(p=>{const w=Math.abs(p[g(base)])||0; n+=p[g(field)]*w; d+=w;});
+  return d? n/d : 0;
+}
+// DV01: $ per 1bp = Σ mv(or notional)*dur*1e-4 ; hedge uses |notl|*dur, negative sign
+function posDV01(p){ const notion = p[g('asset')]==='UST'&&p[g('side')]==='SHORT' ? p[g('units')] : p[g('mv')]; return notion*p[g('dur')]*1e-4; }
+function posSDV01(p){ return p[g('mv')]*p[g('sdur')]*1e-4; }
+const DV01 = positions.reduce((a,p)=>a+posDV01(p),0);
+const SDV01 = positions.reduce((a,p)=>a+posSDV01(p),0);
+const rateDur = DV01/(NAV*1e-4);
+const spreadDur = SDV01/(NAV*1e-4);
+const bookYield = wavg('ytm', p=>p[g('mv')]>0); // invested weighted
+const igMV = positions.filter(p=>['LQD','JPM','META','OXY','UNH'].includes(p[0])).reduce((a,p)=>a+p[g('mv')],0);
+const hyMV = positions.filter(p=>['HYG','F','CCL','TDG'].includes(p[0])).reduce((a,p)=>a+p[g('mv')],0);
+const creditMV = igMV+hyMV;
+const igPct = igMV/creditMV*100, hyPct = hyMV/creditMV*100;
+const portOAS = wavg('oas', p=>p[g('oas')]>0);
+const totUnrl = positions.reduce((a,p)=>a+p[g('unrl')],0);
+// exposure buckets
+const exTreas = positions.filter(p=>p[g('asset')]==='UST'&&p[g('side')]==='LONG').reduce((a,p)=>a+p[g('mv')],0)+positions.filter(p=>p[0]==='IEF').reduce((a,p)=>a+p[g('mv')],0);
+const exIG = igMV, exHY = hyMV, exCash = CASH;
+// largest issuer
+let largest = positions.filter(p=>p[g('asset')]==='CORP').sort((a,b)=>b[g('mv')]-a[g('mv')])[0];
+// spread DV01 by sector (single names + etfs)
+const sectorSD = {};
+positions.filter(p=>p[g('sdur')]>0).forEach(p=>{const s=p[g('asset')]==='ETF'?(p[0]==='LQD'?'IG index (LQD)':'HY index (HYG)'):p[g('sector')]; sectorSD[s]=(sectorSD[s]||0)+posSDV01(p);});
+const metaShareSD = posSDV01(positions.find(p=>p[0]==='META'))/SDV01*100;
+
+/* ---------- formatters ---------- */
+const nf0=new Intl.NumberFormat('en-US',{maximumFractionDigits:0});
+const money=n=>'$'+nf0.format(Math.round(n));
+const smoney=n=>(n<0?'-$':'+$')+nf0.format(Math.abs(Math.round(n)));
+const smoneyPlain=n=>(n<0?'-$':'$')+nf0.format(Math.abs(Math.round(n)));
+const pct=(n,d=1)=>n.toFixed(d)+'%';
+const spct=(n,d=1)=>(n>=0?'+':'')+n.toFixed(d)+'%';
+const cls=n=>n>0?'pos':n<0?'neg':'';
+const bp=n=>Math.round(n)+'bp';
+
+/* ---------- seeded sparkline ---------- */
+function rng(seed){let s=seed*2654435761%2147483647;return()=>{s=s*16807%2147483647;return s/2147483647;};}
+function sparkline(seed,up,w=64,h=20){
+  const r=rng(seed||7);const n=24;let v=0;const pts=[];
+  for(let i=0;i<n;i++){v+=(r()-0.5);pts.push(v);}
+  const drift=(up?1:-1)*Math.abs(pts[n-1]-pts[0]||1); pts[n-1]=pts[0]+drift*(0.6+r());
+  const mn=Math.min(...pts),mx=Math.max(...pts),rg=(mx-mn)||1;
+  const P=pts.map((p,i)=>[(i/(n-1))*w, h-2-((p-mn)/rg)*(h-4)]);
+  const d=P.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const col=up?'#3f8b63':'#b0332b';
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" stroke="${col}" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+/* ============================================================ RENDER ============================================================ */
+const el=id=>document.getElementById(id);
+
+/* ---- yield curve chart ---- */
+function curveChart(){
+  const W=560,H=250,pl=44,pr=16,pt=18,pb=34; const iw=W-pl-pr, ih=H-pt-pb;
+  const xs=curve.tenors.map((t,i)=>pl+(i/(curve.tenors.length-1))*iw);
+  const all=[...curve.now,...curve.prior]; const ymin=Math.floor(Math.min(...all)*10)/10-0.05, ymax=Math.ceil(Math.max(...all)*10)/10+0.05;
+  const Y=v=>pt+ih-((v-ymin)/(ymax-ymin))*ih;
+  const line=arr=>arr.map((v,i)=>(i?'L':'M')+xs[i].toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+  let grid='';
+  for(let gy=Math.ceil(ymin*10)/10; gy<=ymax; gy+=0.2){const y=Y(gy).toFixed(1);grid+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#eef2ee"/><text x="${pl-8}" y="${(+y+3).toFixed(1)}" text-anchor="end" font-size="10" fill="#98a29b" font-family="var(--mono)">${gy.toFixed(1)}%</text>`;}
+  const xlab=curve.tenors.map((t,i)=>`<text x="${xs[i]}" y="${H-12}" text-anchor="middle" font-size="10.5" fill="#6b7670">${t}</text>`).join('');
+  const dots=curve.now.map((v,i)=>`<circle cx="${xs[i]}" cy="${Y(v)}" r="3.2" fill="#1a5c3a" stroke="#fff" stroke-width="1.5"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Treasury yield curve, 3 month to 30 year, current versus one month ago" style="display:block">
+    ${grid}${xlab}
+    <path d="${line(curve.prior)}" fill="none" stroke="#b9c6bd" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <path d="${line(curve.now)}" fill="none" stroke="#1a5c3a" stroke-width="2.2"/>
+    ${dots}
+  </svg>`;
+}
+/* ---- NAV curve (generated) ---- */
+function navSeries(){
+  const r=rng(1337); const n=175; const out=[],bench=[];
+  let v=START_NAV, b=START_NAV; const target=NAV, btarget=99720;
+  for(let i=0;i<n;i++){
+    const prog=i/(n-1);
+    v = START_NAV + (target-START_NAV)*prog + (r()-0.5)*230 - Math.sin(prog*7)*140;
+    b = START_NAV + (btarget-START_NAV)*prog + (r()-0.5)*170 - Math.sin(prog*5+1)*180;
+    out.push(v); bench.push(b);
+  }
+  out[n-1]=NAV; return {out,bench};
+}
+function navChart(){
+  const {out,bench}=navSeries(); const W=560,H=250,pl=52,pr=16,pt=14,pb=26; const iw=W-pl-pr,ih=H-pt-pb;
+  const all=[...out,...bench]; const ymin=Math.floor(Math.min(...all)/500)*500, ymax=Math.ceil(Math.max(...all)/500)*500;
+  const X=i=>pl+(i/(out.length-1))*iw, Y=v=>pt+ih-((v-ymin)/(ymax-ymin))*ih;
+  const path=arr=>arr.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+  const area=path(out)+` L ${X(out.length-1).toFixed(1)} ${(pt+ih).toFixed(1)} L ${pl} ${(pt+ih).toFixed(1)} Z`;
+  let grid='';const step=(ymax-ymin)/4;
+  for(let i=0;i<=4;i++){const gv=ymin+step*i;const y=Y(gv).toFixed(1);grid+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#eef2ee"/><text x="${pl-8}" y="${(+y+3)}" text-anchor="end" font-size="9.5" fill="#98a29b" font-family="var(--mono)">$${(gv/1000).toFixed(1)}k</text>`;}
+  const legend=`<div class="chart-legend"><span><i class="ln-solid"></i>the book</span><span><i class="ln-dash"></i>Bloomberg Agg, same money</span></div>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Portfolio NAV since inception versus the Bloomberg Aggregate benchmark" style="display:block">
+    ${grid}
+    <line x1="${pl}" y1="${Y(START_NAV)}" x2="${W-pr}" y2="${Y(START_NAV)}" stroke="#cdd6ce" stroke-dasharray="3 3"/>
+    <path d="${area}" fill="#e7f1ea"/>
+    <path d="${path(bench)}" fill="none" stroke="#b0b8b2" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="${path(out)}" fill="none" stroke="#1a5c3a" stroke-width="2.2"/>
+    <circle cx="${X(out.length-1)}" cy="${Y(NAV)}" r="3.6" fill="#1a5c3a" stroke="#fff" stroke-width="1.5"/>
+  </svg>`;
+  return legend+svg;
+}
+/* ---- spread vs P&L scatter ---- */
+function scatter(){
+  const pts=positions.filter(p=>p[g('sdur')]>0);
+  const W=560,H=300,pl=48,pr=90,pt=20,pb=42; const iw=W-pl-pr,ih=H-pt-pb;
+  const xmax=Math.max(...pts.map(posSDV01))*1.15;
+  const pnls=pts.map(p=>p[g('unrl')]/NAV*100); const ymin=Math.min(...pnls,-0.1)-0.1, ymax=Math.max(...pnls)+0.1;
+  const X=v=>pl+(v/xmax)*iw, Y=v=>pt+ih-((v-ymin)/(ymax-ymin))*ih;
+  const y0=Y(0);
+  let dots=pts.map(p=>{
+    const x=X(posSDV01(p)),y=Y(p[g('unrl')]/NAV*100); const rad=6+Math.sqrt(p[g('mv')])/22;
+    const good=p[g('unrl')]>=0; const col=good?'#3f8b63':'#b0332b';
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad.toFixed(1)}" fill="${col}" fill-opacity="0.28" stroke="${col}" stroke-width="1.3"/>
+            <text x="${(x+rad+3).toFixed(1)}" y="${(y+3.5).toFixed(1)}" font-size="10.5" fill="#3a423d" font-weight="500">${p[0]}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Scatter of spread risk versus profit and loss for each credit position" style="display:block">
+    <rect x="${pl}" y="${y0}" width="${iw}" height="${(pt+ih-y0).toFixed(1)}" fill="#faf1f0"/>
+    <line x1="${pl}" y1="${y0}" x2="${W-pr}" y2="${y0}" stroke="#cdd6ce"/>
+    <line x1="${pl}" y1="${pt}" x2="${pl}" y2="${pt+ih}" stroke="#cdd6ce"/>
+    <text x="${pl}" y="${H-14}" font-size="10.5" fill="#98a29b">low spread risk</text>
+    <text x="${W-pr}" y="${H-14}" text-anchor="end" font-size="10.5" fill="#98a29b">high spread risk →</text>
+    <text transform="translate(14 ${pt+ih/2}) rotate(-90)" text-anchor="middle" font-size="10.5" fill="#98a29b">P&amp;L, % of NAV →</text>
+    ${dots}
+  </svg>`;
+}
+/* ---- maturity wall ---- */
+function maturityWall(){
+  const buckets={"'28":0,"'29":0,"'30":0,"'31":0,"'34":0,"'35":0,"'44":0,"'56":0};
+  const yr=n=>n.match(/'(\d{2})/); positions.forEach(p=>{const m=p[1].match(/'(\d{2})|\/(\d{2})$/);});
+  const map={"UST 2Y":"'28","UST 5Y":"'31","UST 10Y":"'36","UST 30Y":"'56","JPM":"'34","META":"'44","OXY":"'31","UNH":"'35","F":"'30","CCL":"'30","TDG":"'29"};
+  const b={}; positions.forEach(p=>{const k=map[p[0]]; if(k) b[k]=(b[k]||0)+p[g('mv')];});
+  const keys=Object.keys(b).sort(); const W=560,H=180,pl=20,pr=16,pt=14,pb=28; const iw=W-pl-pr,ih=H-pt-pb;
+  const max=Math.max(...Object.values(b)); const bw=iw/keys.length*0.62;
+  let bars=keys.map((k,i)=>{const x=pl+(i+0.5)*(iw/keys.length); const h=(b[k]/max)*ih; const y=pt+ih-h;
+    return `<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="#3f8b63"/>
+      <text x="${x.toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-size="10" fill="#6b7670" font-family="var(--mono)">${(b[k]/1000).toFixed(1)}k</text>
+      <text x="${x.toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="10.5" fill="#6b7670">${k}</text>`;}).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Maturity wall by year of par exposure" style="display:block">${bars}</svg>`;
+}
+
+/* ============ tab builders ============ */
+function overview(){
+  const dayPct=DAY_PNL/NAV*100;
+  return `
+  <div class="card"><div class="card-h"><h2>Portfolio</h2><div class="meta">2026-09-03 close → 2026-09-04 close</div></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Portfolio NAV</div><div class="v">${money(NAV)}</div><div class="s">${money(invested)} invested &middot; ${money(CASH)} cash</div></div>
+      <div class="stat"><div class="k">Daily P&amp;L</div><div class="v ${cls(DAY_PNL)}">${smoney(DAY_PNL)}</div><div class="s ${cls(dayPct)}">${spct(dayPct,2)}</div></div>
+      <div class="stat"><div class="k">YTD return</div><div class="v ${cls(YTD)}">${spct(YTD,2)}</div><div class="s">Agg +2.0% &middot; ahead +1.1%</div></div>
+      <div class="stat"><div class="k">Book yield (YTW)</div><div class="v">${pct(bookYield,2)}</div><div class="s">blended, invested</div></div>
+      <div class="stat"><div class="k">Duration</div><div class="v">${rateDur.toFixed(1)} yrs</div><div class="s">limit 6.0 yrs</div></div>
+      <div class="stat"><div class="k">DV01</div><div class="v">${money(DV01)}<span style="font-size:14px;color:var(--muted)">/bp</span></div><div class="s">net of 10Y hedge</div></div>
+      <div class="stat"><div class="k">Spread duration</div><div class="v">${spreadDur.toFixed(1)} yrs</div><div class="s">SDV01 ${money(SDV01)}/bp</div></div>
+      <div class="stat"><div class="k">Cash</div><div class="v">${(CASH/NAV*100).toFixed(1)}%</div><div class="s">min 5.0%</div></div>
+    </div></div>
+
+  <div class="split">
+    <div class="card"><div class="card-h"><h2>Treasury yield curve</h2><div class="meta">solid = today &middot; dashed = 1 month ago</div></div>
+      <div class="card-b">
+        <div class="curve-tbl">${curve.tenors.map((t,i)=>{const ch=(curve.now[i]-curve.prior[i])*100;return `<div><div class="t">${t}</div><div class="y">${curve.now[i].toFixed(2)}</div><div class="c ${cls(-ch)}">${ch>=0?'+':''}${ch.toFixed(0)}bp</div></div>`;}).join('')}</div>
+        ${curveChart()}
+        <div class="callout" style="margin-top:14px"><span class="ic">▸</span><div><b>Curve read.</b> The front end has rallied ${Math.abs(curve.now[2]*100-curve.prior[2]*100).toFixed(0)}bp on Sep-cut pricing while the long end is anchored — a <b>bull steepening</b>. 2s10s at ${((curve.now[5]-curve.now[2])*100).toFixed(0)}bp, 5s30s at ${((curve.now[7]-curve.now[3])*100).toFixed(0)}bp. Our long-5Y / hedged-10Y stance is positioned for exactly this.</div></div>
+      </div></div>
+
+    <div class="card"><div class="card-h"><h2>Portfolio exposure</h2><div class="meta">% of NAV</div></div>
+      <div class="card-b"><div class="bars">
+        ${[["Treasuries",exTreas,"g1"],["IG credit",exIG,"g2"],["HY credit",exHY,"g3"],["Cash",exCash,"g4"]].map(([n,v,c],i)=>`
+          <div class="bar-row"><span>${n}</span><div class="bar-track"><div class="bar-fill ${c!=='g1'?c:''}" style="width:${(v/NAV*100).toFixed(0)}%"></div></div><span class="amt">${(v/NAV*100).toFixed(0)}%</span></div>`).join('')}
+      </div>
+      <div class="callout" style="margin-top:16px"><span class="ic">▸</span><div><b>Where the money is.</b> A core Treasury sleeve funds a ${((exIG+exHY)/NAV*100).toFixed(0)}% credit overweight tilted to IG (${igPct.toFixed(0)}/${hyPct.toFixed(0)} IG/HY). Cash at ${(CASH/NAV*100).toFixed(1)}% is dry powder for the maturity wall and new-issue.</div></div>
+      </div></div>
+  </div>
+
+  <div class="split">
+    <div class="card"><div class="card-h"><h2>NAV since inception</h2><div class="meta">2026-01-02 → 2026-09-04</div></div>
+      <div class="card-b">${navChart()}</div></div>
+    <div class="card"><div class="card-h"><h2>Upcoming macro events</h2><div class="meta">next 3 weeks</div></div>
+      <div class="card-b">${events.filter(e=>e[0]>='2026-09-15').slice(0,6).map(e=>`<div class="evt"><span class="d">${e[0].slice(5)}</span><span class="n">${e[1]}<br><small>${e[2]}</small></span><span class="imp ${e[3]}">${e[3]}</span></div>`).join('')}</div></div>
+  </div>`;
+}
+
+function book(){
+  const rows=positions.map(p=>{
+    const wt=p[g('mv')]/NAV*100; const up=p[g('unrl')]>=0;
+    return `<tr>
+      <td class="l"><span class="tick">${p[0]}</span><span class="pname">${p[1]}</span></td>
+      <td class="l">${p[g('sector')]}</td>
+      <td class="l"><span class="rat">${p[g('rating')]}</span></td>
+      <td class="l">${p[g('analyst')]}</td>
+      <td class="l"><span class="pill ${p[g('side')]==='SHORT'?'short':p[g('asset')].toLowerCase()}">${p[g('side')]==='SHORT'?'HEDGE':p[g('asset')]}</span></td>
+      <td class="mono">${p[g('side')]==='SHORT'?'-':''}${nf0.format(Math.abs(p[g('units')]))}<small style="color:var(--faint)"> ${p[g('ulbl')]}</small></td>
+      <td class="mono">${p[g('price')].toFixed(2)}</td>
+      <td class="mono">${p[g('ytm')]?p[g('ytm')].toFixed(2)+'%':'—'}</td>
+      <td class="mono mut">${p[g('eytm')]?p[g('eytm')].toFixed(2)+'%':'—'}</td>
+      <td class="mono">${p[g('dur')].toFixed(1)}</td>
+      <td class="mono">${p[g('oas')]?'+'+p[g('oas')]:'—'}</td>
+      <td>${sparkline(p[g('seed')],up)}</td>
+      <td>${p[g('mv')]?money(p[g('mv')]):'—'}</td>
+      <td class="${cls(p[g('unrl')])}">${smoney(p[g('unrl')])}</td>
+      <td class="mut">${wt.toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+  return `<div class="card"><div class="card-h"><h2>Book — all positions</h2><div class="meta">${positions.length} positions &middot; click a heading to sort</div></div>
+    <div class="card-b">
+      <p class="lede"><b>Every line the desk owns.</b> Treasuries and ETFs mark daily; corporate bonds are maintained by hand until the pricing feed lands in v0.2. Entry yield vs current yield shows whether a position has carried or drifted.</p>
+      <div class="tbl-wrap"><table class="grid" id="bookTbl">
+        <thead><tr>
+          <th class="l">Position</th><th class="l">Sector</th><th class="l">Rating</th><th class="l">Analyst</th><th class="l">Type</th>
+          <th>Size</th><th>Price</th><th>Yield</th><th>Entry yld</th><th>Dur</th><th>OAS</th><th>60D</th><th>Mkt value</th><th>Unrealized</th><th>% NAV</th>
+        </tr></thead><tbody>${rows}</tbody>
+        <tfoot><tr style="font-weight:600"><td class="l">Total / weighted</td><td class="l" colspan="4"></td><td></td><td></td><td class="mono">${pct(bookYield,2)}</td><td></td><td class="mono">${rateDur.toFixed(1)}</td><td class="mono">+${Math.round(portOAS)}</td><td></td><td>${money(invested)}</td><td class="${cls(totUnrl)}">${smoney(totUnrl)}</td><td>${(invested/NAV*100).toFixed(0)}%</td></tr></tfoot>
+      </table></div>
+    </div></div>`;
+}
+
+function risk(){
+  const shift=b=>-DV01*b; const shiftS=b=>-SDV01*b;
+  const rateVol=7, credVol=8; const rr=DV01*rateVol, cr=SDV01*credVol; const rp=rr/(rr+cr)*100;
+  const var95=1.645*Math.sqrt(rr*rr+cr*cr);
+  return `
+  <div class="card"><div class="card-h"><h2>Risk exposure</h2><div class="meta">as of 2026-09-04</div></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Duration</div><div class="v">${rateDur.toFixed(1)} yrs</div><div class="s">DV01 ${money(DV01)}/bp</div></div>
+      <div class="stat"><div class="k">Spread duration</div><div class="v">${spreadDur.toFixed(1)} yrs</div><div class="s">SDV01 ${money(SDV01)}/bp</div></div>
+      <div class="stat"><div class="k">Convexity</div><div class="v">0.68</div><div class="s">long convexity (30Y)</div></div>
+      <div class="stat"><div class="k">Portfolio OAS</div><div class="v">+${Math.round(portOAS)}bp</div><div class="s">credit sleeve</div></div>
+      <div class="stat"><div class="k">1-day VaR, 95%</div><div class="v neg">-${money(var95)}</div><div class="s">-${pct(var95/NAV*100,2)} of NAV</div></div>
+      <div class="stat"><div class="k">Est. daily vol</div><div class="v">${pct(Math.sqrt(rr*rr+cr*cr)/NAV*100,2)}</div><div class="s">rate + spread</div></div>
+    </div></div>
+
+  <div class="split">
+    <div class="card"><div class="card-h"><h2>Rate scenarios</h2><div class="meta">parallel Treasury shift · 1st order + convexity</div></div>
+      <div class="card-b">
+        <div class="ladder">
+          <div class="h lft">Shift</div><div class="h">P&amp;L</div><div class="h">% of NAV</div>
+          ${[-100,-50,-25,25,50,100].map(b=>{const v=shift(b)+0.5*0.68*NAV*1e-4*(b/100)*(b);return `<div class="c lft">${b>0?'+':''}${b}bp</div><div class="c ${cls(v)}">${smoney(v)}</div><div class="c ${cls(v)}">${spct(v/NAV*100,2)}</div>`;}).join('')}
+        </div>
+        <div class="callout" style="margin-top:14px"><span class="ic">▸</span><div><b>Rate risk, in plain terms.</b> A <b>+10bp</b> parallel rise in Treasury yields costs about <b>${smoneyPlain(-DV01*10)}</b> (${pct(DV01*10/NAV*100,2)} of NAV); a <b>+100bp</b> move, about <b>${smoneyPlain(shift(100))}</b> (${pct(-shift(100)/NAV*100,1)}). Long convexity from the 30Y softens large moves.</div></div>
+      </div></div>
+
+    <div class="card"><div class="card-h"><h2>Where the risk comes from</h2><div class="meta">1σ daily contribution</div></div>
+      <div class="card-b">
+        <div class="fsplit"><div class="a" style="width:${rp.toFixed(0)}%">rate ${rp.toFixed(0)}%</div><div class="b" style="width:${(100-rp).toFixed(0)}%">credit ${(100-rp).toFixed(0)}%</div></div>
+        <p class="lede" style="margin-top:14px"><b>Rate risk</b> is the part that moves with the whole Treasury market — it is a duration bet, and you can hedge it (we do, with the 10Y). <b>Credit-spread risk</b> is the part your analysts are paid for: it is name and sector selection. A fixed-income book that is almost all rate risk is a levered Treasury fund.</p>
+        <div class="callout warn"><span class="ic">▸</span><div><b>Credit concentration.</b> <b>${metaShareSD.toFixed(0)}%</b> of spread DV01 sits in a single name (META, 11.9y spread duration). The next largest single-name contributors are JPM and UNH. Not a sell — but it is the position to think about first if spreads gap wider.</div></div>
+      </div></div>
+  </div>
+
+  <div class="split">
+    <div class="card"><div class="card-h"><h2>Which risk is being paid for</h2><div class="meta">circle size = market value</div></div>
+      <div class="card-b">${scatter()}
+        <div class="chart-cap">Above the line has made money; the tinted band below is spread risk that has cost money so far.</div></div></div>
+    <div class="card"><div class="card-h"><h2>Spread DV01 by sector</h2><div class="meta">$ per 1bp of widening</div></div>
+      <div class="card-b"><div class="bars">
+        ${Object.entries(sectorSD).sort((a,b)=>b[1]-a[1]).map(([s,v],i)=>`<div class="bar-row"><span style="font-size:12px">${s}</span><div class="bar-track"><div class="bar-fill ${i>0?('g'+Math.min(i+1,4)):''}" style="width:${(v/Math.max(...Object.values(sectorSD))*100).toFixed(0)}%"></div></div><span class="amt">${'$'+v.toFixed(1)}</span></div>`).join('')}
+      </div>
+      <div class="callout" style="margin-top:16px"><span class="ic">▸</span><div><b>Spread interpretation.</b> A <b>+10bp</b> broad credit widening costs about <b>${smoneyPlain(shiftS(10))}</b>. The single-name book (ex-ETFs) is where selection risk lives; the ETFs (LQD/HYG) carry diversified beta.</div></div>
+      </div></div>
+  </div>`;
+}
+
+function limits(){
+  const L=[
+    ["Portfolio duration", rateDur, 6.0, "yrs", "Modified duration ceiling", v=>v/6.0],
+    ["HY credit weight", hyMV/NAV*100, 20, "% NAV", "High-yield sleeve cap", v=>v/20],
+    ["Single issuer (corp)", largest[g('mv')]/NAV*100, 6.0, "% NAV", `Largest: ${largest[0]} (${largest[g('sector')]})`, v=>v/6.0],
+    ["Single-name spread DV01", metaShareSD, 25, "% SDV01", "META concentration in spread risk", v=>v/25],
+    ["Cash minimum", CASH/NAV*100, 5.0, "% NAV floor", "Liquidity floor (inverse)", v=>1-Math.min(v/25,1)],
+    ["Below-BB exposure", positions.filter(p=>['B+','B','B-'].includes(p[g('rating')])).reduce((a,p)=>a+p[g('mv')],0)/NAV*100, 4.0, "% NAV", "Single-B rated names (TDG)", v=>v/4.0],
+    ["Spread duration", spreadDur, 4.5, "yrs", "Credit spread duration ceiling", v=>v/4.5],
+  ];
+  const rows=L.map(([n,v,lim,u,sub,f])=>{
+    const util=Math.max(0,Math.min(f(v),1.15)); const status=util>=1?'BREACH':util>=0.85?'WATCH':'OK';
+    const inv=n==='Cash minimum';
+    return `<div class="limit">
+      <div class="top"><span class="name">${n}</span><span class="status ${status}">${status}</span></div>
+      <div class="util"><i class="${status==='BREACH'?'b':status==='WATCH'?'w':''}" style="width:${(util*100).toFixed(0)}%"></i></div>
+      <div class="sub">${inv?'':''}${typeof v==='number'?(u.includes('%')?v.toFixed(1):v.toFixed(1)):v}${u.includes('%')?'%':''} ${u.includes('%')?'':u} &middot; ${inv?'floor':'limit'} ${lim}${u.includes('%')?'%':' '+u.replace('% NAV','').replace('yrs','yrs')} &middot; ${sub}</div>
+    </div>`;
+  }).join('');
+  return `<div class="card"><div class="card-h"><h2>Limits &amp; guidelines</h2><div class="meta">3 warning(s) &middot; 1 to watch</div></div>
+    <div class="card-b">
+      <div class="callout warn"><span class="ic">!</span><div><b>Single-name spread concentration</b> — META is ${metaShareSD.toFixed(0)}% of spread DV01, near the 25% guideline. Sized at cap; no adds.</div></div>
+      <div class="callout warn"><span class="ic">!</span><div><b>Single-B exposure</b> — TransDigm ('29, B+) sits at ${(positions.find(p=>p[0]==='TDG')[g('mv')]/NAV*100).toFixed(1)}% NAV. A one-notch downgrade would trip the below-BB add rule.</div></div>
+      <div class="callout warn"><span class="ic">!</span><div><b>Long-end duration bucket</b> — the 30Y contributes ${(posDV01(positions.find(p=>p[0]==='UST 30Y'))/DV01*100).toFixed(0)}% of DV01 on ${(positions.find(p=>p[0]==='UST 30Y')[g('mv')]/NAV*100).toFixed(1)}% of NAV. Watch on a hawkish SEP.</div></div>
+      <div class="callout"><span class="ic">▸</span><div><b>To watch</b> — Ford Credit ('30, BB+) capped at 4% NAV pending auto ABS delinquency data.</div></div>
+      ${rows}
+    </div></div>`;
+}
+
+function macro(){
+  return `
+  <div class="card"><div class="card-h"><h2>Rates &amp; macro command center</h2><div class="meta">Rates & Macro pod</div></div>
+    <div class="card-b">
+      <div class="split">
+        <div>
+          <h3 class="mini">Treasury curve &amp; 1-month change</h3>
+          <div class="curve-tbl">${curve.tenors.map((t,i)=>{const ch=(curve.now[i]-curve.prior[i])*100;return `<div><div class="t">${t}</div><div class="y">${curve.now[i].toFixed(2)}</div><div class="c ${cls(-ch)}">${ch>=0?'+':''}${ch.toFixed(0)}bp</div></div>`;}).join('')}</div>
+          ${curveChart()}
+        </div>
+        <div>
+          <h3 class="mini">Curve trades</h3>
+          <div class="readout">
+            <div class="row"><span class="lab">2s10s</span><span class="val">${((curve.now[5]-curve.now[2])*100).toFixed(0)}bp <span class="mut" style="font-weight:400">(1m ${((curve.prior[5]-curve.prior[2])*100).toFixed(0)}bp)</span></span></div>
+            <div class="row"><span class="lab">5s30s</span><span class="val">${((curve.now[7]-curve.now[3])*100).toFixed(0)}bp <span class="mut" style="font-weight:400">(1m ${((curve.prior[7]-curve.prior[3])*100).toFixed(0)}bp)</span></span></div>
+            <div class="row"><span class="lab">3m10y</span><span class="val">${((curve.now[5]-curve.now[0])*100).toFixed(0)}bp</span></div>
+            <div class="row"><span class="lab">10Y real (TIPS)</span><span class="val">1.71%</span></div>
+            <div class="row"><span class="lab">10Y breakeven</span><span class="val">2.34%</span></div>
+            <div class="row"><span class="lab">SOFR</span><span class="val">4.31%</span></div>
+            <div class="row"><span class="lab">Fed funds (upper)</span><span class="val">4.25%</span></div>
+          </div>
+          <div class="callout" style="margin-top:14px"><span class="ic">▸</span><div><b>Positioning.</b> The desk runs a mild <b>steepener</b> (long 5Y, hedged 10Y) into a cutting cycle. 2s10s has steepened ${(((curve.now[5]-curve.now[2])-(curve.prior[5]-curve.prior[2]))*100).toFixed(0)}bp in a month — the trade is working.</div></div>
+        </div>
+      </div>
+    </div></div>
+
+  <div class="split-even">
+    <div class="card"><div class="card-h"><h2>Data &amp; Fed watch</h2><div class="meta">latest prints</div></div>
+      <div class="card-b"><div class="readout">
+        ${macroHist.map(m=>`<div class="row"><span class="lab">${m[0]}</span><span class="val">${m[1]} <span class="mut" style="font-weight:400">${m[2]}</span></span></div>`).join('')}
+      </div>
+      <div class="callout" style="margin-top:14px"><span class="ic">▸</span><div><b>Fed path.</b> Core PCE at 2.7% and payrolls cooling keep an 82% probability on a <b>−25bp</b> Sep cut. The risk to our long end is the dot plot, not the cut.</div></div>
+      </div></div>
+    <div class="card"><div class="card-h"><h2>Pre-release &amp; post-mortem memos</h2><div class="meta">macro analysts</div></div>
+      <div class="card-b">${memos.filter(m=>m[1].includes('Macro')||m[1].includes('Rates')).map(m=>`<div class="memo"><h3>${m[0]}</h3><div class="by">${m[1]}</div><p>${m[2]}</p><div class="tags">${m[3].map(t=>`<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div></div>`).join('')}</div></div>
+  </div>`;
+}
+
+function credit(){
+  const igN=positions.filter(p=>['LQD','JPM','META','OXY','UNH'].includes(p[0])).length;
+  const ratingBuckets={}; positions.filter(p=>p[g('asset')]!=='UST').forEach(p=>{const r=p[g('rating')].replace(/[+-]/,'');ratingBuckets[p[g('rating')]]=(ratingBuckets[p[g('rating')]]||0)+p[g('mv')];});
+  const rbOrder=['AA-','A','A-','BBB','BB+','BB','BB-','B+'];
+  return `
+  <div class="card"><div class="card-h"><h2>Credit risk</h2><div class="meta">Credit pod</div></div>
+    <div class="stats">
+      <div class="stat"><div class="k">IG / HY</div><div class="v">${igPct.toFixed(0)} / ${hyPct.toFixed(0)}</div><div class="s">% of credit sleeve</div></div>
+      <div class="stat"><div class="k">Average rating</div><div class="v">BBB+</div><div class="s">MV-weighted</div></div>
+      <div class="stat"><div class="k">Portfolio OAS</div><div class="v">+${Math.round(portOAS)}bp</div><div class="s">option-adjusted</div></div>
+      <div class="stat"><div class="k">Spread duration</div><div class="v">${spreadDur.toFixed(1)} yrs</div><div class="s">SDV01 ${money(SDV01)}/bp</div></div>
+      <div class="stat"><div class="k">Largest issuer</div><div class="v">${largest[0]}</div><div class="s">${(largest[g('mv')]/NAV*100).toFixed(1)}% of NAV</div></div>
+    </div></div>
+
+  <div class="split-even">
+    <div class="card"><div class="card-h"><h2>IG / HY &amp; rating buckets</h2><div class="meta">market value</div></div>
+      <div class="card-b">
+        <div class="bars" style="margin-bottom:18px">
+          <div class="bar-row"><span>IG credit</span><div class="bar-track"><div class="bar-fill" style="width:${igPct.toFixed(0)}%"></div></div><span class="amt">${igPct.toFixed(0)}%</span></div>
+          <div class="bar-row"><span>HY credit</span><div class="bar-track"><div class="bar-fill g3" style="width:${hyPct.toFixed(0)}%"></div></div><span class="amt">${hyPct.toFixed(0)}%</span></div>
+        </div>
+        <h3 class="mini">Rating distribution</h3>
+        <div class="bars">${rbOrder.filter(r=>ratingBuckets[r]).map((r,i)=>`<div class="bar-row"><span class="mono" style="font-size:12px">${r}</span><div class="bar-track"><div class="bar-fill ${i<3?'':'g3'}" style="width:${(ratingBuckets[r]/Math.max(...Object.values(ratingBuckets))*100).toFixed(0)}%"></div></div><span class="amt">${money(ratingBuckets[r])}</span></div>`).join('')}</div>
+      </div></div>
+
+    <div class="card"><div class="card-h"><h2>Spread vs P&amp;L</h2><div class="meta">circle size = market value</div></div>
+      <div class="card-b">${scatter()}
+        <div class="callout" style="margin-top:8px"><span class="ic">▸</span><div><b>Best P&amp;L per unit of spread risk:</b> META, UST-adjacent IG. <b>Costing money so far:</b> Carnival, OXY — theses still have time, but they are the names to defend at the next review.</div></div>
+      </div></div>
+  </div>
+
+  <div class="split">
+    <div class="card"><div class="card-h"><h2>Maturity wall</h2><div class="meta">par by year</div></div>
+      <div class="card-b">${maturityWall()}
+        <div class="callout" style="margin-top:8px"><span class="ic">▸</span><div><b>Reinvestment.</b> The 2028 Treasury and a cluster of ' 29–'31 credits roll off first — cash from these plus the ${(CASH/NAV*100).toFixed(0)}% buffer funds new-issue without forced selling.</div></div>
+      </div></div>
+    <div class="card"><div class="card-h"><h2>Issuer watchlist</h2><div class="meta">credit analysts</div></div>
+      <div class="card-b"><div class="readout">
+        <div class="row"><span class="lab">META &middot; AA- &middot; Tech</span><span class="val">+105bp &middot; hold at cap</span></div>
+        <div class="row"><span class="lab">JPM &middot; A- &middot; Fins</span><span class="val">+88bp &middot; add on weakness</span></div>
+        <div class="row"><span class="lab">OXY &middot; BBB &middot; Energy</span><span class="val neg">+150bp &middot; defend thesis</span></div>
+        <div class="row"><span class="lab">Ford &middot; BB+ &middot; Autos</span><span class="val">+265bp &middot; capped 4% NAV</span></div>
+        <div class="row"><span class="lab">Carnival &middot; BB- &middot; Leisure</span><span class="val neg">+330bp &middot; underwater, hold</span></div>
+        <div class="row"><span class="lab">TransDigm &middot; B+ &middot; Aero</span><span class="val">+315bp &middot; downgrade risk</span></div>
+      </div></div></div>
+  </div>`;
+}
+
+function calendar(){
+  const grp={}; events.forEach(e=>{const k=e[0]<'2026-09-15'?'Recent (rolled off / maturities)':(e[0]<='2026-09-30'?'September 2026':'October 2026');(grp[k]=grp[k]||[]).push(e);});
+  const auctions=events.filter(e=>e[1].includes('auction')).length;
+  return `<div class="card"><div class="card-h"><h2>Economic &amp; desk calendar</h2><div class="meta">data · FOMC · auctions · maturities</div></div>
+    <div class="card-b">
+      <p class="lede"><b>One calendar for the whole desk.</b> Macro prints, FOMC, Treasury auctions and the book's own bond maturities in one place. HIGH-impact events are the ones that move the whole curve; size around them deliberately.</p>
+      ${Object.entries(grp).map(([k,list])=>`<h3 class="mini" style="margin-top:18px">${k}</h3>${list.sort((a,b)=>a[0].localeCompare(b[0])).map(e=>`<div class="evt"><span class="d">${e[0]}</span><span class="n">${e[1]}<br><small>${e[2]}</small></span><span class="imp ${e[3]}">${e[3]}</span></div>`).join('')}`).join('')}
+      <div class="callout" style="margin-top:18px"><span class="ic">▸</span><div><b>Next 3 weeks.</b> ${auctions} Treasury auctions test supply appetite; the Sep 17 FOMC and Sep 25 core PCE are the two events that can re-price our duration. The Aug 2R Treasury maturity frees ~$11k to redeploy.</div></div>
+    </div></div>`;
+}
+
+function research(){
+  return `
+  <div class="card"><div class="card-h"><h2>Research &amp; theses</h2><div class="meta">all analysts</div></div>
+    <div class="card-b">${memos.map(m=>`<div class="memo"><h3>${m[0]}</h3><div class="by">${m[1]}</div><p>${m[2]}</p><div class="tags">${m[3].map(t=>`<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div></div>`).join('')}</div></div>
+  <div class="card"><div class="card-h"><h2>People &amp; coverage</h2><div class="meta">Rates & Macro / Credit pods</div></div>
+    <div class="card-b"><div class="people">${people.map(p=>`<div class="person"><div class="ava">${p[2]}</div><div><div class="nm">${p[0]}</div><div class="rl">${p[1]}</div></div></div>`).join('')}</div></div></div>`;
+}
+
+/* ---- mount + tabs ---- */
+const builders={overview,book,risk,limits,macro,credit,calendar,research};
+const built={};
+function show(tab){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('main > section').forEach(s=>s.hidden = s.id!=='tab-'+tab);
+  if(!built[tab]){ el('tab-'+tab).innerHTML = builders[tab](); built[tab]=true; if(tab==='book') wireSort(); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+el('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.tab);});
+el('refreshBtn').addEventListener('click',function(){this.textContent='Refreshed ✓';setTimeout(()=>this.textContent='Refresh',1400);});
+
+/* ---- book sorting ---- */
+function wireSort(){
+  const tbl=el('bookTbl'); if(!tbl)return; const tb=tbl.tBodies[0];
+  tbl.querySelectorAll('th').forEach((th,ci)=>th.addEventListener('click',()=>{
+    const rows=[...tb.rows]; const asc=th.dataset.asc!=='1'; th.dataset.asc=asc?'1':'0';
+    rows.sort((a,b)=>{
+      const parse=t=>{const n=parseFloat(t.replace(/[^0-9.\-]/g,''));return isNaN(n)?t.toLowerCase():n;};
+      let x=parse(a.cells[ci].innerText), y=parse(b.cells[ci].innerText);
+      if(typeof x==='number'&&typeof y==='number')return asc?x-y:y-x;
+      return asc?(''+x).localeCompare(y):(''+y).localeCompare(x);
+    });
+    rows.forEach(r=>tb.appendChild(r));
+  }));
+}
+
+show('overview');
+</script>
