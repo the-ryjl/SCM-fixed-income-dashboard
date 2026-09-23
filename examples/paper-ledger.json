@@ -1,0 +1,15 @@
+{
+  "asOf": "2026-09-17",
+  "settings": {"initialCash":10000,"inception":"2026-09-01","status":"provisional","allowed":["UST","CORP","ETF"],"limits":{"duration":6,"hy":20,"issuer":6,"spreadName":25,"cash":5,"belowBB":4,"spreadDuration":4.5}},
+  "securities": [{"id":"DEMO-BOND","name":"Illustrative Treasury — test only","issuer":"US Treasury","instrument":"Treasury","quantityType":"par","coupon":4,"maturityDate":"2028-09-01","currency":"USD","rating":"AAA"}],
+  "trades": [
+    {"id":"DEMO-BUY","analyst":"Test analyst","tradeDate":"2026-09-02","settlementDate":"2026-09-03","securityId":"DEMO-BOND","side":"Buy","quantity":1000,"quantityType":"par","price":99,"executionAccruedPer100":1,"fees":2,"status":"Executed","researchUrl":"https://example.com/test-only"},
+    {"id":"DEMO-SELL","analyst":"Test analyst","tradeDate":"2026-09-16","settlementDate":"2026-09-18","securityId":"DEMO-BOND","side":"Sell","quantity":400,"quantityType":"par","price":102,"executionAccruedPer100":0.1,"fees":1,"status":"Executed","researchUrl":"https://example.com/test-only"}
+  ],
+  "marks": [
+    {"id":"DEMO-MARK-1","date":"2026-09-02","securityId":"DEMO-BOND","price":99,"accruedPer100":1,"duration":1.9,"ytm":4.5,"ytw":4.5,"sourceUrl":"https://example.com/test-only"},
+    {"id":"DEMO-MARK-2","date":"2026-09-15","securityId":"DEMO-BOND","price":101,"accruedPer100":0,"duration":1.85,"ytm":3.5,"ytw":3.5,"sourceUrl":"https://example.com/test-only"},
+    {"id":"DEMO-MARK-3","date":"2026-09-17","securityId":"DEMO-BOND","price":102,"accruedPer100":0.1,"duration":1.8,"ytm":3,"ytw":3,"sourceUrl":"https://example.com/test-only"}
+  ],
+  "cashFlows": [{"id":"DEMO-COUPON","date":"2026-09-15","type":"Coupon","securityId":"DEMO-BOND","amount":20,"direction":"In","analyst":"Test analyst","sourceUrl":"https://example.com/test-only"}]
+}
